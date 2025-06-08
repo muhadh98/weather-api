@@ -2,8 +2,8 @@ pipeline {
   agent any     // Run on any available agent (Jenkins node)
 
   tools {
-    maven 'Maven 3.9.9'  // Name of Maven tool in Jenkins
-    jdk 'JDK 11'         // Name of JDK in Jenkins config
+    maven 'maven-3.9.9'  // Name of Maven tool in Jenkins
+    jdk 'jdk-11'         // Name of JDK in Jenkins config
   }
 
   environment {
