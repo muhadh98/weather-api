@@ -1,22 +1,23 @@
 pipeline {
-  agent any     // Run on any available agent (Jenkins node)
+  agent any
 
   tools {
-    maven 'maven-3.9.9'  // Name of Maven tool in Jenkins
-    jdk 'jdk-11'         // Name of JDK in Jenkins config
+    maven 'maven-3.9.9'
+    jdk 'jdk-11'
   }
 
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
+    IMAGE_NAME = 'weather-api:latest'
   }
 
   stages {
     stage('Checkout') {
-       steps {
-                git branch: 'main', url: 'https://github.com/muhadh98/weather-api.git'
-                echo "Checked out the main branch of the repository."
-            }
-        }
+      steps {
+        git branch: 'main', url: 'https://github.com/muhadh98/weather-api.git'
+        echo "Checked out the main branch of the repository."
+      }
+    }
 
     stage('Build') {
       steps {
@@ -27,6 +28,13 @@ pipeline {
     stage('Test') {
       steps {
         sh 'mvn test'
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        echo "Building Docker image..."
+        sh 'docker build -t $IMAGE_NAME .'
       }
     }
 
