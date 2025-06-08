@@ -1,7 +1,10 @@
 pipeline {
-    agent any
-    // If you want to use a Maven Docker agent, replace the above line with:
-    // agent { docker { image 'maven:3.8.6-openjdk-11' } }
+    agent {
+        docker {
+            image 'maven:3.8.6-openjdk-11'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
 
     environment {
         APP_NAME = 'weather-api'
