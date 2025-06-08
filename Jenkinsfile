@@ -37,14 +37,30 @@ pipeline {
         sh 'docker build -t $IMAGE_NAME .'
       }
     }
+// ...existing code...
+stage('Deploy') {
+  steps {
+    echo "Killing old version if running..."
+    sh 'pkill -f $JAR_NAME || true'
 
-    stage('Deploy') {
+    echo "Starting app on port 8082..."
+    sh 'nohup java -jar $WORKSPACE/target/weather-api-1.0-SNAPSHOT.jar --server.port=8082 > $WORKSPACE/app.log 2>&1 &'
+  }
+}
+// ...existing code...
+
+    stage('Push Docker Image') {
       steps {
-        echo "Killing old version if running..."
-        sh 'pkill -f $JAR_NAME || true'
+        echo "Pushing Docker image to registry..."
+        sh 'docker tag $IMAGE_NAME myregistry/weather-api:latest'
+        sh 'docker push myregistry/weather-api:latest'
+      }
+    }
 
-        echo "Starting app..."
-        sh 'nohup java -jar $WORKSPACE/target/weather-api-0.0.1-SNAPSHOT.jar > $WORKSPACE/app.log 2>&1 &'
+    stage('Cleanup') {
+      steps {
+        echo "Cleaning up workspace..."
+        sh 'mvn clean'
       }
     }
   }
