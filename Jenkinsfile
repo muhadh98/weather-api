@@ -1,5 +1,5 @@
 pipeline {
-  agent { any }
+  agent any 
 
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
