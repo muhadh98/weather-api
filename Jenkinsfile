@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'weather-api:latest'
         CONTAINER_NAME = 'weather-api'
-        APP_PORT = '8082'
+        APP_PORT = '8081'
     }
 
     stages {
@@ -33,7 +33,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    sh "docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:8082 ${IMAGE_NAME}"
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:8081 ${IMAGE_NAME}"
                 }
             }
         }

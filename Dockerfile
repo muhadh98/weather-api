@@ -18,7 +18,7 @@ WORKDIR /app
 COPY --from=build /app/target/weather-api-1.0-SNAPSHOT.jar app.jar
 
 # Expose the application port
-EXPOSE 8082
+EXPOSE 8081
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
