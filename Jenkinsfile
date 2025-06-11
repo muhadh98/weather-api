@@ -1,10 +1,6 @@
 pipeline {
   agent { any }
 
-  tools {
-    maven 'Maven-3.9.9'
-  }
-
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
     IMAGE_NAME = 'weather-api:latest'
@@ -23,12 +19,20 @@ pipeline {
 
     stage('Build') {
       steps {
+        script {
+          def mvnHome = tool name: 'Maven-3.9.9', type: 'maven'
+          env.PATH = "${mvnHome}/bin:${env.PATH}"
+        }
         sh 'mvn clean package -DskipTests'
       }
     }
 
     stage('Test') {
       steps {
+        script {
+          def mvnHome = tool name: 'Maven-3.9.9', type: 'maven'
+          env.PATH = "${mvnHome}/bin:${env.PATH}"
+        }
         sh 'mvn test'
       }
     }
@@ -41,16 +45,16 @@ pipeline {
     }
 
     stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to registry..."
-    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-      sh 'docker push $REGISTRY_IMAGE'
-      sh 'docker logout'
+      steps {
+        echo "Pushing Docker image to registry..."
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+          sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+          sh 'docker push $REGISTRY_IMAGE'
+          sh 'docker logout'
+        }
+      }
     }
-  }
-}
 
     stage('Deploy to Docker') {
       steps {
@@ -77,46 +81,6 @@ pipeline {
     }
     failure {
       echo 'Pipeline failed. Check logs.'
-    }
-  }
-}stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to registry..."
-    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-      sh 'docker push $REGISTRY_IMAGE'
-      sh 'docker logout'
-    }
-  }
-}stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to registry..."
-    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-      sh 'docker push $REGISTRY_IMAGE'
-      sh 'docker logout'
-    }
-  }
-}stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to registry..."
-    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-      sh 'docker push $REGISTRY_IMAGE'
-      sh 'docker logout'
-    }
-  }
-}stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to registry..."
-    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-      sh 'docker push $REGISTRY_IMAGE'
-      sh 'docker logout'
     }
   }
 }
