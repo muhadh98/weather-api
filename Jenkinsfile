@@ -4,7 +4,7 @@ pipeline {
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
     IMAGE_NAME = 'weather-api:latest'
-    REGISTRY_IMAGE = 'myregistry/weather-api:latest'
+    REGISTRY_IMAGE = 'yourdockerhubusername/weather-api:latest' // Change to your Docker Hub username
     CONTAINER_NAME = 'weather-api-app'
     APP_PORT = '8082'
   }
