@@ -3,13 +3,14 @@ pipeline {
 
   tools {
     maven 'Maven-3.9.9'
-    
   }
 
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
     IMAGE_NAME = 'weather-api:latest'
     REGISTRY_IMAGE = 'myregistry/weather-api:latest'
+    CONTAINER_NAME = 'weather-api-app'
+    APP_PORT = '8082'
   }
 
   stages {
@@ -34,7 +35,7 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        echo "Building Docker image exposing port 8082..."
+        echo "Building Docker image exposing port $APP_PORT..."
         sh 'docker build -t $IMAGE_NAME .'
       }
     }
@@ -47,13 +48,14 @@ pipeline {
       }
     }
 
-    stage('Deploy') {
+    stage('Deploy to Docker') {
       steps {
-        echo "Killing old version if running..."
-        sh 'pkill -f $JAR_NAME || true'
+        echo "Stopping and removing old container if exists..."
+        sh 'docker stop $CONTAINER_NAME || true'
+        sh 'docker rm $CONTAINER_NAME || true'
 
-        echo "Starting app on port 8082..."
-        sh 'nohup java -jar $WORKSPACE/target/$JAR_NAME --server.port=8082 > $WORKSPACE/app.log 2>&1 &'
+        echo "Running new Docker container on port $APP_PORT..."
+        sh 'docker run -d --name $CONTAINER_NAME -p $APP_PORT:8082 $IMAGE_NAME'
       }
     }
 
