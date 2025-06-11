@@ -2,7 +2,7 @@
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Clone the repository
-RUN git clone https://github.com/Dehemi2001/Springboot_Weather_API.git /app
+RUN git clone https://github.com/muhadh98/weather-api.git /app
 WORKDIR /app
 
 # Build the application (skip tests for faster build)
