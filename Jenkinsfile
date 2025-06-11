@@ -4,7 +4,7 @@ pipeline {
   environment {
     JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
     IMAGE_NAME = 'weather-api:latest'
-    REGISTRY_IMAGE = 'yourdockerhubusername/weather-api:latest' // Change to your Docker Hub username
+    REGISTRY_IMAGE = 'muhadh98/weather-api:latest' // Change to your Docker Hub username
     CONTAINER_NAME = 'weather-api-app'
     APP_PORT = '8082'
   }
@@ -44,17 +44,23 @@ pipeline {
       }
     }
 
-    stage('Push Docker Image') {
-      steps {
-        echo "Pushing Docker image to registry..."
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-          sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-          sh 'docker push $REGISTRY_IMAGE'
-          sh 'docker logout'
-        }
-      }
+   stage('Push Docker Image') {
+  steps {
+    echo "Pushing Docker image to Docker Hub..."
+
+    script {
+      def dockerUser = 'your_dockerhub_username'
+      def dockerPass = 'your_dockerhub_password_or_token'
+
+      sh """
+        echo '${dockerPass}' | docker login -u '${dockerUser}' --password-stdin
+        docker tag $IMAGE_NAME $REGISTRY_IMAGE
+        docker push $REGISTRY_IMAGE
+        docker logout
+      """
     }
+  }
+}
 
     stage('Deploy to Docker') {
       steps {
