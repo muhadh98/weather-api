@@ -17,7 +17,7 @@ RUN apt-get update && \
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8082
+EXPOSE 8081
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8082/actuator/health || exit 1
