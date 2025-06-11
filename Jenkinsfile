@@ -1,92 +1,50 @@
 pipeline {
-  agent any 
+    agent any
 
-  environment {
-    JAR_NAME = 'weather-api-1.0-SNAPSHOT.jar'
-    IMAGE_NAME = 'weather-api:latest'
-    REGISTRY_IMAGE = 'muhadh98/weather-api:latest' // Change to your Docker Hub username
-    CONTAINER_NAME = 'weather-api-app'
-    APP_PORT = '8082'
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        git branch: 'main', url: 'https://github.com/muhadh98/weather-api.git'
-        echo "Checked out the main branch of the repository."
-      }
+    environment {
+        IMAGE_NAME = 'weather-api:latest'
+        CONTAINER_NAME = 'weather-api'
+        APP_PORT = '8082'
     }
 
-    stage('Build') {
-      steps {
-        script {
-          def mvnHome = tool name: 'Maven-3.9.9', type: 'maven'
-          env.PATH = "${mvnHome}/bin:${env.PATH}"
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-        sh 'mvn clean package -DskipTests'
-      }
-    }
 
-    stage('Test') {
-      steps {
-        script {
-          def mvnHome = tool name: 'Maven-3.9.9', type: 'maven'
-          env.PATH = "${mvnHome}/bin:${env.PATH}"
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t ${IMAGE_NAME} ."
+                }
+            }
         }
-        sh 'mvn test'
-      }
+
+        stage('Stop & Remove Old Container') {
+            steps {
+                script {
+                    sh "docker rm -f ${CONTAINER_NAME} || true"
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${APP_PORT}:8082 ${IMAGE_NAME}"
+                }
+            }
+        }
     }
 
-    stage('Build Docker Image') {
-      steps {
-        echo "Building Docker image exposing port $APP_PORT..."
-        sh 'docker build -t $IMAGE_NAME .'
-      }
+    post {
+        success {
+            echo "Weather API is running at http://localhost:${APP_PORT}"
+        }
+        failure {
+            echo "Pipeline failed. Check logs."
+        }
     }
-
-   stage('Push Docker Image') {
-  steps {
-    echo "Pushing Docker image to Docker Hub..."
-
-    script {
-      def dockerUser = 'your_dockerhub_username'
-      def dockerPass = 'your_dockerhub_password_or_token'
-
-      sh """
-        echo '${dockerPass}' | docker login -u '${dockerUser}' --password-stdin
-        docker tag $IMAGE_NAME $REGISTRY_IMAGE
-        docker push $REGISTRY_IMAGE
-        docker logout
-      """
-    }
-  }
-}
-
-    stage('Deploy to Docker') {
-      steps {
-        echo "Stopping and removing old container if exists..."
-        sh 'docker stop $CONTAINER_NAME || true'
-        sh 'docker rm $CONTAINER_NAME || true'
-
-        echo "Running new Docker container on port $APP_PORT..."
-        sh 'docker run -d --name $CONTAINER_NAME -p $APP_PORT:8082 $IMAGE_NAME'
-      }
-    }
-
-    stage('Cleanup') {
-      steps {
-        echo "Cleaning up workspace..."
-        sh 'mvn clean'
-      }
-    }
-  }
-
-  post {
-    success {
-      echo 'Pipeline completed successfully!'
-    }
-    failure {
-      echo 'Pipeline failed. Check logs.'
-    }
-  }
 }
