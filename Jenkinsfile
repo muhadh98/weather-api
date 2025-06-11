@@ -41,12 +41,16 @@ pipeline {
     }
 
     stage('Push Docker Image') {
-      steps {
-        echo "Pushing Docker image to registry..."
-        sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
-        sh 'docker push $REGISTRY_IMAGE'
-      }
+  steps {
+    echo "Pushing Docker image to registry..."
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+      sh 'docker push $REGISTRY_IMAGE'
+      sh 'docker logout'
     }
+  }
+}
 
     stage('Deploy to Docker') {
       steps {
@@ -73,6 +77,46 @@ pipeline {
     }
     failure {
       echo 'Pipeline failed. Check logs.'
+    }
+  }
+}stage('Push Docker Image') {
+  steps {
+    echo "Pushing Docker image to registry..."
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+      sh 'docker push $REGISTRY_IMAGE'
+      sh 'docker logout'
+    }
+  }
+}stage('Push Docker Image') {
+  steps {
+    echo "Pushing Docker image to registry..."
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+      sh 'docker push $REGISTRY_IMAGE'
+      sh 'docker logout'
+    }
+  }
+}stage('Push Docker Image') {
+  steps {
+    echo "Pushing Docker image to registry..."
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+      sh 'docker push $REGISTRY_IMAGE'
+      sh 'docker logout'
+    }
+  }
+}stage('Push Docker Image') {
+  steps {
+    echo "Pushing Docker image to registry..."
+    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+      sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+      sh 'docker tag $IMAGE_NAME $REGISTRY_IMAGE'
+      sh 'docker push $REGISTRY_IMAGE'
+      sh 'docker logout'
     }
   }
 }
