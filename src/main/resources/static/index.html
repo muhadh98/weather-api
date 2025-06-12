@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+    :root {
+      --primary-color: #2193b0;
+      --secondary-color: #6dd5ed;
+      --bg-glass: rgba(255, 255, 255, 0.2);
+      --text-color: #fff;
+      --border-radius: 20px;
+      --box-shadow: 0 8px 32px rgba(31, 38, 135, 0.3);
+      --backdrop-blur: blur(10px);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #2980b9, #6dd5fa, #ffffff);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: var(--bg-glass);
+      border-radius: var(--border-radius);
+      padding: 40px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--box-shadow);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 28px;
+      font-size: 2.2em;
+      color: #ffffffcc;
+    }
+
+    .input-group {
+      display: flex;
+      margin-bottom: 24px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 18px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.7);
+      color: #333;
+    }
+
+    .input-group button {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .input-group button:hover {
+      background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+      color: #000;
+    }
+
+    .weather-card {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 28px 20px;
+      border-radius: 16px;
+      animation: fadeIn 0.6s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .weather-card h2 {
+      margin-bottom: 12px;
+      font-size: 1.8em;
+      color: #ffffffee;
+    }
+
+    .weather-icon {
+      width: 100px;
+      height: 100px;
+      margin: 10px auto;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    }
+
+    .weather-details {
+      margin: 6px 0;
+      font-size: 1.1em;
+      color: #ffffffcc;
+    }
+
+    .error {
+      margin-top: 18px;
+      text-align: center;
+      color: #ff4d4d;
+      font-weight: bold;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 30px 18px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .input-group input, .input-group button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌦️ Weather App</h1>
+    <div class="input-group">
+      <input type="text" id="city" placeholder="Enter city name" onkeydown="if(event.key==='Enter'){getWeather();}">
+      <button onclick="getWeather()">Search</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function getWeather() {
+      const city = document.getElementById('city').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+      if (!city) {
+        resultDiv.innerHTML = '<div class="error">Please enter a city name.</div>';
+        return;
+      }
+
+      fetch(`/api/weather/${city}`)
+        .then(res => {
+          if (!res.ok) throw new Error('City not found');
+          return res.json();
+        })
+        .then(data => {
+          if (data.main && data.weather && data.weather.length > 0) {
+            const icon = data.weather[0].icon
+              ? `<img class="weather-icon" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="icon">`
+              : '';
+            resultDiv.innerHTML = `
+              <div class="weather-card">
+                <h2>${data.name}</h2>
+                ${icon}
+                <div class="weather-details"><b>Temperature:</b> ${data.main.temp} °C</div>
+                <div class="weather-details"><b>Humidity:</b> ${data.main.humidity} %</div>
+                <div class="weather-details"><b>Condition:</b> ${data.weather[0].main} (${data.weather[0].description})</div>
+                ${data.wind ? `<div class="weather-details"><b>Wind:</b> ${data.wind.speed} m/s</div>` : ''}
+              </div>
+            `;
+          } else {
+            resultDiv.innerHTML = '<div class="error">City not found or error occurred.</div>';
+          }
+        })
+        .catch(() => {
+          resultDiv.innerHTML = '<div class="error">City not found or error occurred.</div>';
+        });
+    }
+  </script>
+</body>
+</html>

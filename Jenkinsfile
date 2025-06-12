@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'weather-api:latest'
+        IMAGE_NAME = 'weather-api:latest33'
         CONTAINER_NAME = 'weather-api'
         APP_PORT = '8081'
     }
